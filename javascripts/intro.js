@@ -36,9 +36,10 @@ function play( ctx, superman, fireball ) {
     drwaComp( ctx, superman );
     drwaComp( ctx, fireball );
     movePlayer( superman );
-    randomFireball( fireball );
+    let compCollision = collision( superman, fireball ) 
+    randomFireball( fireball, compCollision );
   }, 1000/60 )
-  
+
 }
 
 function background( ctx ) {  
@@ -72,13 +73,24 @@ function movePlayer( superman ) {
   }
 }
 
-function randomFireball( fireball ) {
+function collision( superman, fireball ) {
+  let colRight = ( (superman.posX + superman.imgW - 20 >= fireball.posX) && (superman.posX <= fireball.posX) );
+  let colLeft = ( (superman.posX + 20 <= fireball.posX + fireball.imgW) && (superman.posX + superman.imgW >= fireball.posX + fireball.imgW) );
+  let colTop = ( (superman.posY + 20 <= fireball.posY + fireball.imgH) && (superman.posY + superman.imgH >= fireball.posY + fireball.imgH) );
+  let colBot = ( (superman.posY + superman.imgH - 20 >= fireball.posY) && (superman.posY <= fireball.posY) );
+  
+  if ( (colRight || colLeft) && (colTop || colBot)) return true;
+  return false;
+}
+
+function randomFireball( fireball, compCollision ) {
   fireball.posX -= 2;
-    if( fireball.posX <= -70 ) {
+    if( compCollision || fireball.posX <= -70 ) {
       fireball.posX = 450;
       fireball.posY = Math.floor(Math.random() * 430);
     }
 }
+
 
 
 // *************************************************** //
