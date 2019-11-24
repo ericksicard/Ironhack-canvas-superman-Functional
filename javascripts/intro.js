@@ -23,29 +23,22 @@ function init() {
   
   // new object instances
   let superman = new Component( "./img/superman.png", 0, 180, 100, 150 );
-  let fireball = new Component( "./img/fireball.png", 450, 200, 50, 50 );  
-  
-  // draw components
-  background( ctx );
-  drwaComp( ctx, superman );
-  drwaComp( ctx, fireball );
+  let fireball = new Component( "./img/fireball.png", 450, 200, 50, 50 );
 
-  animation( ctx, superman, fireball)
+  play( ctx, superman, fireball)
 }
 
-function animation( ctx, superman, fireball ) {
-  setInterval( () => {
+function play( ctx, superman, fireball ) {
+
+  setInterval( function() {
     clear( ctx );
-    background( ctx );
+    background( ctx );    
     drwaComp( ctx, superman );
     drwaComp( ctx, fireball );
-    fireball.posX -= 2;
-
-    if( fireball.posX <= -70 ) {
-      fireball.posX = 450;
-      fireball.posY = Math.floor(Math.random() * 430);
-    }
+    movePlayer( superman );
+    randomFireball( fireball );
   }, 1000/60 )
+  
 }
 
 function background( ctx ) {  
@@ -61,6 +54,30 @@ function drwaComp ( ctx, obj ) {
 
 function clear( ctx ) {
   ctx.clearRect(0, 0, canva.width, canva.height)
+}
+
+function movePlayer( superman ) {
+  document.onkeydown = event => {
+    let keyCodes = [37, 38, 39, 40];
+    const key = event.keyCode;    
+    
+    if ( keyCodes.includes(key) ) {
+      console.log(keyCodes.includes(key));
+      event.preventDefault();
+      if ( key === 37 && superman.posX >= 0 ) console.log(superman.posX -= 20)
+      else if ( key === 39 && superman.posX <= 500 - superman.imgW ) superman.posX += 20
+      else if ( key === 38 && superman.posY >= 10 ) superman.posY -= 20
+      else if ( key === 40 && superman.posY <= 500 - superman.imgH ) superman.posY += 20
+    }   
+  }
+}
+
+function randomFireball( fireball ) {
+  fireball.posX -= 2;
+    if( fireball.posX <= -70 ) {
+      fireball.posX = 450;
+      fireball.posY = Math.floor(Math.random() * 430);
+    }
 }
 
 
