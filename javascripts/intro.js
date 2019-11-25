@@ -1,23 +1,30 @@
 
-class Component {
-  constructor( img, x, y, w, h) {
-    this.imgScr = img;
-    this.posX = x;
-    this.posY = y;
-    this.imgW = w;
-    this.imgH = h
-  }
-};
-
-let canva = {
-  width: 500,
-  height: 500
-};
-
 function init() {
+
+  class Component {
+    constructor( img, x, y, w, h) {
+      this.imgScr = img;
+      this.posX = x;
+      this.posY = y;
+      this.imgW = w;
+      this.imgH = h
+    }
+  };
+  
+  let canva = {
+    width: 500,
+    height: 500
+  };
+
+  let initialScore = 0;
+  let initialLives = 5;
+
   // insert canvas HTML
-  let canvasHTML = `<canvas id="field" width=${canva.width} height=${canva.height}></canvas>`
+  let canvasHTML = `<div id="score">Score:<span>${initialScore}</span></div>
+                    <div id="lives">Lives:<span>${initialLives}</span></div>
+                    <canvas id="field" width=${canva.width} height=${canva.height}></canvas>`
   document.querySelector('body').insertAdjacentHTML('afterBegin', canvasHTML);  
+  
   // set canvas context
   let ctx = document.getElementById('field').getContext('2d');
   
@@ -25,35 +32,40 @@ function init() {
   let superman = new Component( "./img/superman.png", 0, 180, 100, 150 );
   let fireball = new Component( "./img/fireball.png", 450, 200, 50, 50 );
 
-  play( ctx, superman, fireball)
+  play( canva, ctx, superman, fireball )
 }
 
-function play( ctx, superman, fireball ) {
+// animation & play features
+function play( canva, ctx, superman, fireball ) {
 
-  setInterval( function() {
-    clear( ctx );
+  let intv = setInterval( function() {
+    clear( canva, ctx );
     background( ctx );    
-    drwaComp( ctx, superman );
-    drwaComp( ctx, fireball );
+    drawComp( ctx, superman );
+    drawComp( ctx, fireball );
     movePlayer( superman );
     let compCollision = collision( superman, fireball ) 
-    randomFireball( fireball, compCollision );
+    let restart = randomFireball( fireball, compCollision );
+    if ( restart ) {
+      clearInterval(intv);
+      location.reload();
+    }
   }, 1000/60 )
-
 }
 
+// draws backgroud
 function background( ctx ) {  
   ctx.fillStyle="lightblue";
   ctx.fillRect(0, 0, 500, 500);
 }
 
-function drwaComp ( ctx, obj ) {
+function drawComp ( ctx, obj ) {
   let img = new Image();
   img.src = obj.imgScr;
   ctx.drawImage(img, obj.posX, obj.posY, obj.imgW, obj.imgH);
 }
 
-function clear( ctx ) {
+function clear( canva, ctx ){
   ctx.clearRect(0, 0, canva.width, canva.height)
 }
 
@@ -84,11 +96,22 @@ function collision( superman, fireball ) {
 }
 
 function randomFireball( fireball, compCollision ) {
+  let lives = Number(document.querySelector('#lives > span').innerText);
+  let score = Number(document.querySelector('#score > span').innerText);
   fireball.posX -= 2;
-    if( compCollision || fireball.posX <= -70 ) {
-      fireball.posX = 450;
-      fireball.posY = Math.floor(Math.random() * 430);
+
+  if( compCollision || fireball.posX <= -70 ) {
+    fireball.posX = 450;
+    fireball.posY = Math.floor(Math.random() * 430);
+
+    if( compCollision ) {
+      document.querySelector('#lives > span').innerText = lives - 1;
+      if ( lives <= 0 ) return true;
+    } 
+    else {
+      document.querySelector('#score > span').innerText = score + 1;
     }
+  }
 }
 
 
